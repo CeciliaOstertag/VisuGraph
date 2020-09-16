@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!-- This code is for demonstration purposes only.  You should not hotlink to Github, Rawgit, or files from the Cytoscape.js documentation in your production apps. -->
+<html>
+<head>
+<link href="style.css" rel="stylesheet" />
+<meta charset=utf-8 />
+<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+<title>VisuGraph</title>
+<script src="./cytoscape.min.js"></script>
+<!-- The `multiple` attribute lets users select multiple files. -->
+</head>
+<body>
+<div id="upload" class="upload">
+   <input type="file" multiple onchange="showFile()" accept="image/*">
+</div>
+<ul id="preview"></ul>
+<p id="status"></p>
+<div><img id="output"></div>
+<button id="btn" onclick="initGraph(cy, input)">Load Images </button>
+<button id="btn" onclick="expandGraph(cy)">Expand Edges </button>
+<button id="btn" onclick="retractGraph(cy)">Retract Edges </button>
+<div id="cy"></div>
+<script src="code1.js"></script>
+</body>
+</html>
