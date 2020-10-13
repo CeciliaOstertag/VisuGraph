@@ -1,7 +1,4 @@
-
-var input = [
-{"group": "nodes", "data": {"id": 0, "label": 0}, "position": {"x": 0, "y": 0}}, {"group": "nodes", "data": {"id": 1, "label": 1}, "position": {"x": 10, "y": 0}}, {"group": "nodes", "data": {"id": 2, "label": 2}, "position": {"x": 20, "y": 0}}, {"group": "nodes", "data": {"id": 3, "label": 3}, "position": {"x": 30, "y": 0}}, {"group": "nodes", "data": {"id": 4, "label": 4}, "position": {"x": 0, "y": 10}}, {"group": "nodes", "data": {"id": 5, "label": 5}, "position": {"x": 10, "y": 10}}, {"group": "nodes", "data": {"id": 6, "label": 6}, "position": {"x": 20, "y": 10}}, {"group": "nodes", "data": {"id": 7, "label": 7}, "position": {"x": 30, "y": 10}}, {"group": "edges", "data": {"id": "01", "label": "D", "proba":0.6, "source": 0, "target": 1}}, {"group": "edges", "data": {"id": "04", "label": "B", "proba":0.8,  "source": 0, "target": 4}}, {"group": "edges", "data": {"id": "12", "label": "D", "proba":0.65,  "source": 1, "target": 2}}, {"group": "edges", "data": {"id": "15", "label": "B", "proba":0.77,  "source": 1, "target": 5}}, {"group": "edges", "data": {"id": "10", "label": "G", "proba":0.99,  "source": 1, "target": 0}}, {"group": "edges", "data": {"id": "23", "label": "D", "proba":0.8,  "source": 2, "target": 3}}, {"group": "edges", "data": {"id": "26", "label": "B", "proba":0.55,  "source": 2, "target": 6}}, {"group": "edges", "data": {"id": "21", "label": "G", "proba":0.62,  "source": 2, "target": 1}}, {"group": "edges", "data": {"id": "37", "label": "B", "proba":0.91,  "source": 3, "target": 7}}, {"group": "edges", "data": {"id": "32", "label": "G", "proba":0.69,  "source": 3, "target": 2}}, {"group": "edges", "data": {"id": "45", "label": "D", "proba":0.99,  "source": 4, "target": 5}}, {"group": "edges", "data": {"id": "40", "label": "H", "proba":0.87,  "source": 4, "target": 0}}, {"group": "edges", "data": {"id": "56", "label": "D", "proba":0.98,  "source": 5, "target": 6}}, {"group": "edges", "data": {"id": "51", "label": "H", "proba":0.68,  "source": 5, "target": 1}}, {"group": "edges", "data": {"id": "54", "label": "G", "proba":0.74,  "source": 5, "target": 4}}, {"group": "edges", "data": {"id": "67", "label": "D", "proba":0.6,  "source": 6, "target": 7}}, {"group": "edges", "data": {"id": "62", "label": "H", "proba":0.8,  "source": 6, "target": 2}}, {"group": "edges", "data": {"id": "65", "label": "G", "proba":0.86, "source": 6, "target": 5}}, {"group": "edges", "data": {"id": "73", "label": "H", "proba":0.7,  "source": 7, "target": 3}}, {"group": "edges", "data": {"id": "76", "label": "G", "proba":0.96,  "source": 7, "target": 6}}
-];
+var input = input["items"];
 
 var fileURIs = new Map();
 var cy = cytoscape({
@@ -28,6 +25,7 @@ var cy = cytoscape({
 		    'target-arrow-color': '#000'
 		  })
 		  });
+		
 
 function showFile() {
    var fileInput = document.querySelector("input[type=file]");
@@ -38,7 +36,8 @@ function showFile() {
        reader.onload = function(readerEvent) {
            var url = readerEvent.target.result;
            var name = readerEvent.target.fileName;
-           fileURIs.set(name.substr(0,1), url);
+           console.log(name.slice(0,-4));
+           fileURIs.set(name.slice(0,-4), url);
        }
        reader.readAsDataURL(fileInput.files[i]);
    }
@@ -47,7 +46,6 @@ function showFile() {
 
 function initGraph(cy, input){
 	  cy.add(input);
-
 	nodes = cy.nodes();
 	for (var j = 0; j < nodes.length; j++){
 		id = nodes[j].data("id");
@@ -69,8 +67,38 @@ function expandGraph(cy){
 	nodes.style('font-size',1);
 	nodes.style('text-halign','center');
 	nodes.style('text-valign','center');
+	
 	for (var j = 0; j < nodes.length; j++){
-		nodes[j].style('label',nodes[j].data('label'));
+		nodes[j].style('label',nodes[j].data('id'));
+		H = 0;
+		B = 0;
+		G = 0;
+		D = 0;
+		out_edges = nodes[j].outgoers('edge');
+		for (var k = 0; k < out_edges.length; k++){
+			out_edge = out_edges[k];
+			if (out_edge.data('label') == "H"){
+				H += 1;
+			}
+			else if (out_edge.data('label') == "B"){
+				B += 1;
+			}
+			else if (out_edge.data('label') == "G"){
+				G += 1;
+			}
+			else if (out_edge.data('label') == "D"){
+				D += 1;
+			}
+		}
+		if ( H > 1 || B > 1 || G > 1 || D > 1){
+		// conflict in pairwise assembly
+		nodes[j].style('border-width',0.1);
+		nodes[j].style('border-color','red');
+		}
+		else {
+		nodes[j].style('border-width',0);
+		nodes[j].style('border-color','black');
+		}
 	}
 	
 	edges = cy.edges();
@@ -88,6 +116,11 @@ function expandGraph(cy){
 	layout = cy.layout({name: 'preset', directed: true, padding: 10});
 	layout.run();
 	console.log("expanded");
+	
+	cy.edges().on('click', function(evt){
+		console.log( 'deleting edge ' + evt.target.id() );
+		cy.remove(evt.target);
+	});  
 }
 
 function retractGraph(cy){
@@ -115,7 +148,74 @@ function filterEdges(cy){
 			cy.remove(nodes[j])
 		}
 	}
-	cy.remove
 	console.log("filtered")
 
 }
+
+function nodePositions(cy){
+	elements = cy.elements();
+	components = elements.components();
+	console.log(components.length);
+	nodes = cy.nodes();
+	origin_pos = {'x':0, 'y':0};
+	for (i=0; i < components.length; i++) {
+		component = components[i];
+		root = component[0];
+		console.log("root ",root.id());
+		dps = component.depthFirstSearch({
+			roots: root,
+			visit: function(v, e, u, i, depth){
+				console.log("v ",v.id());
+				if (v == root){
+					v.position(origin_pos);
+					origin_pos['x'] += 50;
+				}
+				else if (e.source() == u) {
+					console.log("S ",e.source().id());
+					console.log("T ",e.target().id());
+					pos = u.position();
+					x = pos['x'];
+					y = pos['y'];
+					if (e.data('label') == "H"){
+						v.position({'x': x, 'y': y - 10});
+					}
+					else if (e.data('label') == "B"){
+						v.position({'x': x, 'y': y + 10});
+					}
+					else if (e.data('label') == "G"){
+						v.position({'x': x - 10, 'y': y});
+					}
+					else if (e.data('label') == "D"){
+						v.position({'x': x + 10, 'y': y});
+					}
+				}
+				else if (e.source() == v) {
+					console.log("S ",e.source().id());
+					console.log("T ",e.target().id());
+					pos = u.position();
+					x = pos['x'];
+					y = pos['y'];
+					if (e.data('label') == "H"){
+						v.position({'x': x, 'y': y + 10});
+					}
+					else if (e.data('label') == "B"){
+						v.position({'x': x, 'y': y - 10});
+					}
+					else if (e.data('label') == "G"){
+						v.position({'x': x + 10, 'y': y});
+					}
+					else if (e.data('label') == "D"){
+						v.position({'x': x - 10, 'y': y});
+					}
+				}
+			},
+			directed: false
+		}); 
+	}
+
+	//layout = cy.layout({name: 'preset', directed: true, padding: 10});
+	//layout.run();
+	console.log("positions recomputed");
+}
+
+
