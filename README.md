@@ -2,8 +2,6 @@
 
 VisuGraph is an interactive user interface to visualize reconstruction proposals, as assembly graphs predicted by our AssemblyGraphNet model.
 
-[Example](https://github.com/CeciliaOstertag/VisuGraph/blob/master/index.html)
-
 ![Reconstuction](recon_mix2.png)
 
 It is based on Cytoscape.js javascript library : https://js.cytoscape.org/#demos
