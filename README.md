@@ -2,7 +2,7 @@
 
 VisuGraph is an interactive user interface to visualize reconstruction proposals, as assembly graphs predicted by our AssemblyGraphNet model.
 
-[Example](https://rawgit.com/CeciliaOstertag/VisuGraph/index.html)
+[Example](https://rawgit.com/CeciliaOstertag/VisuGraph/blob/master/index.html)
 
 ![Reconstuction](recon_mix2.png)
 
